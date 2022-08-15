@@ -173,9 +173,9 @@ If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json fil
 
 ## Reference
 
-* [GitHub - aws-containers](https://github.com/aws-containers)
+* https://aws.github.io/copilot-cli/blogs/apprunner-vpc/
 
-https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
+* https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
 
 ### Docs
 
