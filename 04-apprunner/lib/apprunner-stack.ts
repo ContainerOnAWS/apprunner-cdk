@@ -67,7 +67,7 @@ export class AppRunnerStack extends Stack {
       networkConfiguration: {
         egressConfiguration: {
           egressType: 'VPC',
-          vpcConnectorArn: vpcId,
+          vpcConnectorArn:  Lazy.string({ produce: () => vpcId }) ,
         },
       },
     });
