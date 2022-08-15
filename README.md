@@ -49,9 +49,9 @@ Use the `cdk` command-line toolkit to interact with your project:
 |---|----------------------------------|-------------------|
 | 1 | VPC                              | 3m 30s (optional)     |
 | 2 | IAM roles                        | 1m      |
-| 3 | ECR and CodeCommit repository    | 2m      |
-| 4 | App Runner                       | 3m      |
-|   | Total                            | 6m (9m 30s with a new VPC) |
+| 3 | ECR and CodeCommit repository including Docker build    | 4m      |
+| 4 | App Runner                       | 11m      |
+|   | Total                            | 11m (14m 30s with a new VPC) |
 
 ## Steps
 

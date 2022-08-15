@@ -15,7 +15,7 @@ export class AppRunnerStack extends Stack {
     super(scope, id, props);
 
     const serviceName = `apprunnder-${props.stage}`;
-    const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/fargate-restapi-${props.stage}:latest`;
+    const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/${serviceName}:latest`;
 
     const accessRoleArn = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/access-role-arn`);
     const vpcId = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/vpc-id`);
@@ -70,6 +70,6 @@ export class AppRunnerStack extends Stack {
     });
 
     new CfnOutput(this, 'ServiceName', { value: cfnService.serviceName as string });
-    new CfnOutput(this, 'ServiceURL', { value: cfnService.attrServiceUrl as string });
+    new CfnOutput(this, 'ServiceURL', { value: 'https://' + cfnService.attrServiceUrl as string });
   }
 }
