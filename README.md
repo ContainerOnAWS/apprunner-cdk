@@ -49,9 +49,9 @@ Use the `cdk` command-line toolkit to interact with your project:
 |---|----------------------------------|-------------------|
 | 1 | VPC                              | 3m 30s (optional)     |
 | 2 | IAM roles                        | 1m      |
-| 3 | ECR and CodeCommit repository    | 2m      |
-| 4 | App Runner                       | 3m      |
-|   | Total                            | 6m (9m 30s with a new VPC) |
+| 3 | ECR and CodeCommit repository including Docker build    | 4m      |
+| 4 | App Runner                       | 6m      |
+|   | Total                            | 11m (14m 30s with a new VPC) |
 
 ## Steps
 
@@ -173,9 +173,9 @@ If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json fil
 
 ## Reference
 
-* [GitHub - aws-containers](https://github.com/aws-containers)
+* https://aws.github.io/copilot-cli/blogs/apprunner-vpc/
 
-https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
+* https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
 
 ### Docs
 

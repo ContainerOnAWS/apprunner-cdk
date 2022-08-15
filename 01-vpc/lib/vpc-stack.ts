@@ -10,7 +10,7 @@ export class VpcStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
-        const cidr = `10.100.0.0/16`;
+        const cidr = `10.10.0.0/16`;
         const vpc = new ec2.Vpc(this, 'Vpc', {
             maxAzs: 3,
             natGateways: 3,

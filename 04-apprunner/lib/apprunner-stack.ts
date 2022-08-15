@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 import * as apprunner from 'aws-cdk-lib/aws-apprunner';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 import { StackCommonProps, SSM_PREFIX } from '../../config';
 
@@ -14,12 +15,22 @@ export class AppRunnerStack extends Stack {
     super(scope, id, props);
 
     const serviceName = `apprunnder-${props.stage}`;
-    const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/fargate-restapi-${props.stage}:latest`;
+    const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/${serviceName}:latest`;
 
     const accessRoleArn = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/access-role-arn`);
     const vpcId = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/vpc-id`);
+    const vpc = ec2.Vpc.fromLookup(this, 'vpc', { vpcId });
 
-    const cfnService = new apprunner.CfnService(this, 'cfn-service', {
+    let privateSubnetIds: string[] = [];
+    for (const subnet of vpc.privateSubnets) {
+      privateSubnetIds.push(subnet.subnetId);
+    }
+    const vpcConnector = new apprunner.CfnVpcConnector(this, 'vpc-connector', {
+      vpcConnectorName: `vpcct-${serviceName}`,
+      subnets: privateSubnetIds,
+    });
+
+    const cfnService = new apprunner.CfnService(this, 'service', {
       serviceName,
       tags: [{
         key: 'stage',
@@ -53,12 +64,12 @@ export class AppRunnerStack extends Stack {
       networkConfiguration: {
         egressConfiguration: {
           egressType: 'VPC',
-          vpcConnectorArn:  Lazy.string({ produce: () => vpcId }) ,
+          vpcConnectorArn: vpcConnector.attrVpcConnectorArn,
         },
       },
     });
 
     new CfnOutput(this, 'ServiceName', { value: cfnService.serviceName as string });
-    new CfnOutput(this, 'ServiceURL', { value: cfnService.attrServiceUrl as string });
+    new CfnOutput(this, 'ServiceURL', { value: `https://${cfnService.attrServiceUrl}` });
   }
 }
