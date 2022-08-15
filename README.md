@@ -12,9 +12,9 @@ In this sample project, we will learn major features of ECS Fargate and Fargate 
 
 Learn the features below using the CDK code:
 
-* App Runner
-* App Runner deployment with ECR image
-* App Runner deployment with CodeCommit repository
+* App Runner Service
+* Container deployment with ECR image
+* Container deployment with change from CodeCommit repository
 
 ## Table of Contents
 
@@ -130,26 +130,9 @@ cdk deploy
 ecs-restapi-service refers the SSM parameters below:
 
 * /cdk-ecs-fargate/vpc-id
-* /cdk-ecs-fargate/cluster-securitygroup-id
 * /cdk-ecs-fargate/task-execution-role-arn
-* /cdk-ecs-fargate/default-task-role-arn
 
 [ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts](./ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts)
-
-#### Configuration for Staging and Production
-
-| Resource      | Property           | Value       |
-|---------------|--------------------|-------------|
-| ECS Service   | minHealthyPercent  | 100         |
-| ECS Service   | maxHealthyPercent  | 200         |
-| ECS Service   | scaleOutCooldown   | 60 seconds  |
-| ECS Service   | scaleInCooldown    | 120 seconds |
-| ALB           | idleTimeout        | 30 seconds  |
-| ALB TargetGroup      | healthyThresholdCount    | 2  |
-| ALB TargetGroup      | unhealthyThresholdCount  | 5  |
-| ALB TargetGroup      | interval                 | 31 seconds  |
-| ALB TargetGroup      | timeout                  | 30 seconds  |
-| ALB TargetGroup      | deregistrationDelay      | 15 seconds  |
 
 **IMPORTANT**
 
@@ -157,94 +140,12 @@ If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json fil
 
 `find . -name "cdk.context.json" -exec rm -f {} \;`
 
-### Step 6: ECS Service with Fargate Spot
-
-Crearte a Fargate Service with `Spot CapacityProvider`, Auto Scaling, ALB, and Log Group.
-
-```bash
-cd ../ecs-fargatespot-service-restapi
-cdk deploy 
-```
-
-Use FARGATE_SPOT as 50% ratio:
-
-```typescript
-const fargateService = new ecs.FargateService(this, 'ecs-fargate-service', {
-    cluster,
-    serviceName,
-    taskDefinition,
-    enableExecuteCommand: true,
-    minHealthyPercent: 100,
-    maxHealthyPercent: 200,
-    capacityProviderStrategies: [
-        {
-            capacityProvider: 'FARGATE_SPOT',
-            weight: 1,
-        },
-        {
-            capacityProvider: 'FARGATE',
-            weight: 1,
-        }
-    ]
-});
-```
-
-[ecs-fargatespot-service-restapi/lib/ecs-fargatespot-service-restapi-stack.ts](./ecs-fargatespot-service-restapi/lib/ecs-fargatespot-service-restapi-stack.ts)
-
-![ecs-service](./screenshots/ecs-service.png?raw=true)
-
-![spot-task](./screenshots/spot-task.png?raw=true)
-
 ### Step 7: Scale the Tasks
 
 ```bash
 aws ecs update-service --cluster fargate-dev --service fargate-restapi-dev --desired-count 10
 
 aws ecs update-service --cluster fargate-dev --service fargatespot-restapi-dev --desired-count 10
-```
-
-### Step 8: Execute a command using ECS Exec
-
-Install the Session Manager plugin for the AWS CLI:
-
-https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html#install-plugin-linux
-
-```bash
-aws ecs list-tasks --cluster fargate-dev --service-name restapi
-```
-
-```json
-{
-    "taskArns": [
-        "arn:aws:ecs:us-east-1:123456789:task/fargate-dev/0a244ff8b8654b3abaaed0880b2b78f1",
-        "arn:aws:ecs:us-east-1:123456789:task/fargate-dev/ac3d5a4e7273460a80aa18264e4a8f5e"
-    ]
-}
-```
-
-```bash
-TASK_ID=$(aws ecs list-tasks --cluster fargate-dev --service-name restapi | jq '.taskArns[0]' | cut -d '/' -f3 | cut -d '"' -f1)
-
-aws ecs execute-command --cluster fargate-dev --task $TASK_ID --container restapi-container  --interactive --command "/bin/sh"
-```
-
-```bash
-The Session Manager plugin was installed successfully. Use the AWS CLI to start a session.
-
-Starting session with SessionId: ecs-execute-command-0dfcb1f8c2e47585a
-/app # top
-Mem: 1253428K used, 6610268K free, 540K shrd, 2088K buff, 827656K cached
-CPU:   0% usr   0% sys   0% nic 100% idle   0% io   0% irq   0% sirq
-Load average: 0.00 0.02 0.00 4/301 75
-  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
-   22     8 root     S    1525m  19%   2   0% /ecs-execute-command-2daf7b7a-7ad7-457d-a33d-ca639508cfa7/ssm-agent-worker
-   57    22 root     S    1518m  19%   2   0% /ecs-execute-command-2daf7b7a-7ad7-457d-a33d-ca639508cfa7/ssm-session-worker ecs-execute-command-0dfcb1f8c2e47585a
-    8     0 root     S    1440m  18%   1   0% /ecs-execute-command-2daf7b7a-7ad7-457d-a33d-ca639508cfa7/amazon-ssm-agent
-   14     1 root     S    32632   0%   2   0% {gunicorn} /usr/local/bin/python /usr/local/bin/gunicorn flask_api:app --bind 0.0.0.0:8080
-    1     0 root     S    22976   0%   0   0% {gunicorn} /usr/local/bin/python /usr/local/bin/gunicorn flask_api:app --bind 0.0.0.0:8080
-   66    57 root     S     1676   0%   0   0% /bin/sh
-   74    66 root     R     1604   0%   1   0% top
-/app # exit
 ```
 
 ### Step 9: ECS deploy with Code Pipeline
@@ -344,6 +245,8 @@ SSM parameters:
 ## Reference
 
 * [GitHub - aws-containers](https://github.com/aws-containers)
+
+https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
 
 ### Docs
 

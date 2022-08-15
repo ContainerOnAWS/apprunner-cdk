@@ -14,21 +14,8 @@ export class AppRunnerStack extends Stack {
   constructor(scope: Construct, id: string, props: StackCommonProps) {
     super(scope, id, props);
 
-    // const service = apprunner.CfnService
-
     const serviceName = `apprunnder-${props.stage}`;
     const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/fargate-restapi-${props.stage}:latest`;
-
-    // const accessRole = new iam.Role(this, 'access-role', {
-    //   roleName: `AppRunnerEcrAccessRole${this.stackId}`,
-    //   // roleName: `AppRunnerEcrAccessRole-$serviceName`,
-    //   assumedBy: new iam.ServicePrincipal('build.apprunner.amazonaws.com'),
-    //   managedPolicies: [
-    //     iam.ManagedPolicy.fromAwsManagedPolicyName(
-    //       'service-role/AWSAppRunnerServicePolicyForECRAccess',
-    //     ),
-    //   ]
-    // });
 
     const accessRoleArn = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/access-role-arn`);
     const vpcId = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/vpc-id`);
