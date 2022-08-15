@@ -12,6 +12,6 @@ const stage = app.node.tryGetContext('stage') || DEFAULT_STAGE;
 
 new VpcStack(app, `ecs-vpc-${stage}`,  {
     env,
-    description: 'VPC for Fargate and EC2 ECS',
+    description: 'VPC for AppRunner',
     terminationProtection: stage!==DEFAULT_STAGE
 });
