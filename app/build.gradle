@@ -11,7 +11,7 @@ repositories {
 	mavenCentral()
 }
 
-archivesBaseName = 'devops-java-gradle'
+archivesBaseName = 'app'
 application {
     mainClass = 'com.sample.DemoApplication'
 }

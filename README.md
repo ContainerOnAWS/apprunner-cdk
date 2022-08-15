@@ -12,25 +12,18 @@ In this sample project, we will learn major features of ECS Fargate and Fargate 
 
 Learn the features below using the CDK code:
 
-* ECS Cluster, Service, and Task
-* ECS Task IAM role
-* ECS Fargate and Fargate Spot with Capacity Prodiver
-* ECS AutoScaling with Target Tracking Scaling
-* ECS Exec to execute a command
-* ECS deployment with X-Ray sidecar
-* ECS deployment with AWS Code Commit repository and AWS Code Pipeline
+* App Runner
+* App Runner deployment with ECR image
+* App Runner deployment with CodeCommit repository
 
 ## Table of Contents
 
 1. Deploy VPC stack
-2. Deploy ECS Fargate cluster stack
-3. Deploy IAM Role stack
-4. Docker build, deploy ECR and CodeCommit repository stack
-5. Deploy ECS Fargate Service stack
-6. Deploy ECS FargateSpot Service stackcd
-7. Scale the ECS Tasks
-8. Execute a command using ECS Exec
-9. Deploy ECS Code Pipeline stack
+2. Deploy IAM Role stack
+3. Docker build, deploy ECR and CodeCommit repository stack
+4. Deploy App Runner stack
+5. Deploy with ECR image
+6. Deploy with CodeCommit repository
 
 ## Prerequisites
 
@@ -55,13 +48,10 @@ Use the `cdk` command-line toolkit to interact with your project:
 |   | Stack                            |  Time To Complete |
 |---|----------------------------------|-------------------|
 | 1 | VPC                              | 3m 30s (optional)     |
-| 2 | ECS Fargate cluster              | 50s     |
-| 3 | IAM roles                        | 1m      |
-| 4 | ECR and CodeCommit repository    | 2m      |
-| 5 | ECS Fargate Service and ALB      | 3m      |
-| 6 | ECS FargateSpot Service and ALB  | 3m      |
-| 7 | Code Pipeline                    | 1m      |
-|   | Total                            | 11m (14m 30s with a new VPC) |
+| 2 | IAM roles                        | 1m      |
+| 3 | ECR and CodeCommit repository    | 2m      |
+| 4 | App Runner                       | 3m      |
+|   | Total                            | 6m (9m 30s with a new VPC) |
 
 ## Steps
 
