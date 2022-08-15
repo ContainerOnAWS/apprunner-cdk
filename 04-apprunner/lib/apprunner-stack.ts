@@ -21,7 +21,7 @@ export class AppRunnerStack extends Stack {
     const vpcId = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/vpc-id`);
     const vpc = ec2.Vpc.fromLookup(this, 'vpc', { vpcId });
 
-    var privateSubnetIds: string[] = [];
+    let privateSubnetIds: string[] = [];
     for (const subnet of vpc.privateSubnets) {
       privateSubnetIds.push(subnet.subnetId);
     }
