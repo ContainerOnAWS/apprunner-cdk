@@ -6,7 +6,7 @@
 
 In this sample project, we will learn major features of App Runner.
 
-![Architecture](./screenshots/fargate-architecture.png?raw=true)
+![Architecture](./screenshots/architecture.png?raw=true)
 
 ## Objectives
 
@@ -66,7 +66,7 @@ cd vpc
 cdk deploy
 ```
 
-[vpc/lib/vpc-stack.ts](./vpc/lib/vpc-stack.ts)
+[01-vpc/lib/vpc-stack.ts](./01-vpc/lib/vpc-stack.ts)
 
 The VPC ID will be saved into the SSM Parameter Store(`/cdk-ecs-fargate/vpc-id`) to refer from other stacks.
 
@@ -76,55 +76,33 @@ To use the existing VPC, use the `-c vpcId` context parameter or create SSM Para
 aws ssm put-parameter --name "/cdk-ecs-fargate/vpc-id" --value "{existing-vpc-id}" --type String 
 ```
 
-### Step 2: ECS cluster
-
-```bash
-cd ../ecs-fargate-cluster
-cdk deploy 
-
-# or define your VPC id with context parameter
-cdk deploy -c vpcId=<vpc-id>
-```
-
-SSM parameter:
-
-* /cdk-ecs-fargate/vpc-id
-
-Cluster Name: [ecs-fargate-cluster/lib/cluster-config.ts](./ecs-fargate-cluster/lib/cluster-config.ts)
-
-[ecs-fargate-cluster/lib/ecs-fargate-cluster-stack.ts](./ecs-fargate-cluster/lib/ecs-fargate-cluster-stack.ts)
-
 ### Step 3: IAM Role
 
-
-Create the ECS Task Execution role and default Task Role.
-
-* AmazonECSFargateTaskExecutionRole
-* ECSFargateDefaultTaskRole including a policy for ECS Exec
+Create the App Ruller access Execution role for ECR.
 
 ```bash
-cd ../iam-role
+cd ../02-iam-role
 cdk deploy 
 ```
 
-[ecs-iam-role/lib/ecs-iam-role-stack.ts](./ecs-iam-role/lib/ecs-iam-role-stack.ts)
+[02-iam-role/lib/02-iam-role-stack.ts](./02-iam-role/lib/02-iam-role-stack.ts)
 
-### Step 4: ECR and CodeCommit repository
+### Step 3: ECR and CodeCommit repository
 
 ```bash
-cd ../ecr-codecommit
+cd ../03-ecr-codecommit
 cdk deploy --outputs-file ./cdk-outputs.json
 cat ./cdk-outputs.json 
 ```
 
-[ecr-codecommit/lib/ecr-codecommit-stack.ts](./ecr-codecommit/lib/ecr-codecommit-stack.ts)
+[03-ecr-codecommit/lib/ecr-codecommit-stack.ts](./03-ecr-codecommit/lib/ecr-codecommit-stack.ts)
 
-### Step 5: ECS Service
+### Step 4: App Runner Service
 
-Crearte a Fargate Service, Auto Scaling, ALB, and Log Group.
+Crearte a App Runne Service.
 
 ```bash
-cd ../ecs-restapi-service
+cd ../04-apprunner
 cdk deploy 
 ```
 
@@ -133,7 +111,7 @@ ecs-restapi-service refers the SSM parameters below:
 * /cdk-ecs-fargate/vpc-id
 * /cdk-ecs-fargate/task-execution-role-arn
 
-[ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts](./ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts)
+[04-apprunner/lib/apprunner-stack.ts](./04-apprunner/lib/apprunner-stack.ts)
 
 **IMPORTANT**
 
@@ -216,18 +194,18 @@ SSM parameters:
 │   │   ├── cluster-config.ts
 │   │   └── ec2ecs-cluster-stack.ts
 │   └── settings.yaml
-├── ecs-iam-role
+├── 02-iam-role
 │   ├── bin
 │   │   └── index.ts
 │   ├── cdk.json
 │   └── lib
-│       └── ecs-iam-role-stack.ts
+│       └── 02-iam-role-stack.ts
 ├── ecs-fargate-service-restapi
 │   ├── bin
 │   │   └── index.ts
 │   ├── cdk.json
 │   ├── lib
-│   │   └── ecs-fargate-service-restapi-stack.ts
+│   │   └── apprunner-stack.ts
 ├── ecs-fargatespot-service-restapi
 │   ├── bin
 │   │   └── index.ts

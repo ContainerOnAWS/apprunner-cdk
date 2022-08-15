@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { DEFAULT_STAGE } from '../../config';
-import { EcsIamRoleStack } from '../lib/ecs-iam-role-stack';
+import { EcsIamRoleStack } from '../lib/iam-role-stack';
 
 const app = new cdk.App();
 const env = {
