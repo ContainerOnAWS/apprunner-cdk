@@ -2,7 +2,6 @@ import { Stack, CfnOutput, Lazy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import * as apprunner from 'aws-cdk-lib/aws-apprunner';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 
 import { StackCommonProps, SSM_PREFIX } from '../../config';

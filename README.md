@@ -1,12 +1,12 @@
-# Sample project for ECS Fargate with CDK
+# App Runner sample project with CDK
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_ecs-fargate-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_ecs-fargate-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_ecs-fargate-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_ecs-fargate-cdk)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk)
 
 ## Introduction
 
-In this sample project, we will learn major features of ECS Fargate and Fargate Spot.
+In this sample project, we will learn major features of App Runner.
 
-![Architecture](./screenshots/fargate-architecture.png?raw=true)
+![Architecture](./screenshots/architecture.png?raw=true)
 
 ## Objectives
 
@@ -66,130 +66,58 @@ cd vpc
 cdk deploy
 ```
 
-[vpc/lib/vpc-stack.ts](./vpc/lib/vpc-stack.ts)
+[01-vpc/lib/vpc-stack.ts](./01-vpc/lib/vpc-stack.ts)
 
-The VPC ID will be saved into the SSM Parameter Store(`/cdk-ecs-fargate/vpc-id`) to refer from other stacks.
+The VPC ID will be saved into the SSM Parameter Store(`/apprunner-cdk/vpc-id`) to refer from other stacks.
 
 To use the existing VPC, use the `-c vpcId` context parameter or create SSM Parameter:
 
 ```bash
-aws ssm put-parameter --name "/cdk-ecs-fargate/vpc-id" --value "{existing-vpc-id}" --type String 
+aws ssm put-parameter --name "/apprunner-cdk/vpc-id" --value "{existing-vpc-id}" --type String 
 ```
-
-### Step 2: ECS cluster
-
-```bash
-cd ../ecs-fargate-cluster
-cdk deploy 
-
-# or define your VPC id with context parameter
-cdk deploy -c vpcId=<vpc-id>
-```
-
-SSM parameter:
-
-* /cdk-ecs-fargate/vpc-id
-
-Cluster Name: [ecs-fargate-cluster/lib/cluster-config.ts](./ecs-fargate-cluster/lib/cluster-config.ts)
-
-[ecs-fargate-cluster/lib/ecs-fargate-cluster-stack.ts](./ecs-fargate-cluster/lib/ecs-fargate-cluster-stack.ts)
 
 ### Step 3: IAM Role
 
-
-Create the ECS Task Execution role and default Task Role.
-
-* AmazonECSFargateTaskExecutionRole
-* ECSFargateDefaultTaskRole including a policy for ECS Exec
+Create the App Ruller access Execution role for ECR.
 
 ```bash
-cd ../iam-role
+cd ../02-iam-role
 cdk deploy 
 ```
 
-[ecs-iam-role/lib/ecs-iam-role-stack.ts](./ecs-iam-role/lib/ecs-iam-role-stack.ts)
+[02-iam-role/lib/02-iam-role-stack.ts](./02-iam-role/lib/02-iam-role-stack.ts)
 
-### Step 4: ECR and CodeCommit repository
+### Step 3: ECR and CodeCommit repository
 
 ```bash
-cd ../ecr-codecommit
+cd ../03-ecr-codecommit
 cdk deploy --outputs-file ./cdk-outputs.json
 cat ./cdk-outputs.json 
 ```
 
-[ecr-codecommit/lib/ecr-codecommit-stack.ts](./ecr-codecommit/lib/ecr-codecommit-stack.ts)
+[03-ecr-codecommit/lib/ecr-codecommit-stack.ts](./03-ecr-codecommit/lib/ecr-codecommit-stack.ts)
 
-### Step 5: ECS Service
+### Step 4: App Runner Service
 
-Crearte a Fargate Service, Auto Scaling, ALB, and Log Group.
+Crearte a App Runne Service.
 
 ```bash
-cd ../ecs-restapi-service
+cd ../04-apprunner
 cdk deploy 
 ```
 
 ecs-restapi-service refers the SSM parameters below:
 
-* /cdk-ecs-fargate/vpc-id
-* /cdk-ecs-fargate/task-execution-role-arn
+* /apprunner-cdk/vpc-id
+* /apprunner-cdk/access-arn
 
-[ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts](./ecs-fargate-service-restapi/lib/ecs-fargate-service-restapi-stack.ts)
+[04-apprunner/lib/apprunner-stack.ts](./04-apprunner/lib/apprunner-stack.ts)
 
 **IMPORTANT**
 
 If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json files deletion with the below:
 
 `find . -name "cdk.context.json" -exec rm -f {} \;`
-
-### Step 7: Scale the Tasks
-
-```bash
-aws ecs update-service --cluster fargate-dev --service fargate-restapi-dev --desired-count 10
-
-aws ecs update-service --cluster fargate-dev --service fargatespot-restapi-dev --desired-count 10
-```
-
-### Step 9: ECS deploy with Code Pipeline
-
-Commit ./app folder files to your new Code Commit repository:
-
-```bash
-PROJECT_ROOT=$(pwd)
-echo $PROJECT_ROOT
-
-CODECOMMIT_REPO_URL=$(cat ecr-codecommit/cdk-outputs.json | jq '."ecr-fargate-restapi-dev".CodeCommitRepoUrl'| cut -d '"' -f2)
-echo $CODECOMMIT_REPO_URL
-cd ../
-git clone ${CODECOMMIT_REPO_URL}
-CODECOMMIT_ROOT=$(pwd)/fargate-restapi-dev
-
-cp ${PROJECT_ROOT}/app/* ${CODECOMMIT_ROOT}/
-cd ${CODECOMMIT_ROOT}
-git add .
-git commit -m "code pipeline"
-git push 
-```
-
-Create a GitHub token on `Settings >  Developer settings` menu and create a secret:
-
-https://github.com/settings/tokens
-
-```bash
-aws secretsmanager create-secret --name '/github/token' --secret-string {your-token}
-
-cd ../code-pipeline
-cdk deploy 
-```
-
-SSM parameters:
-
-* /cdk-ecs-fargate/ecr-repo-arn
-* /cdk-ecs-fargate/ecr-repo-name
-* /cdk-ecs-fargate/cluster-securitygroup-id
-* /cdk-ecs-fargate/cluster-name
-* /cdk-ecs-fargate/codecommit-arn
-
-[code-pipeline/lib/ecs-codedeploy-stack.ts](./code-pipeline/lib/ecs-codedeploy-stack.ts)
 
 ## Clean Up
 
@@ -216,18 +144,18 @@ SSM parameters:
 │   │   ├── cluster-config.ts
 │   │   └── ec2ecs-cluster-stack.ts
 │   └── settings.yaml
-├── ecs-iam-role
+├── 02-iam-role
 │   ├── bin
 │   │   └── index.ts
 │   ├── cdk.json
 │   └── lib
-│       └── ecs-iam-role-stack.ts
+│       └── 02-iam-role-stack.ts
 ├── ecs-fargate-service-restapi
 │   ├── bin
 │   │   └── index.ts
 │   ├── cdk.json
 │   ├── lib
-│   │   └── ecs-fargate-service-restapi-stack.ts
+│   │   └── apprunner-stack.ts
 ├── ecs-fargatespot-service-restapi
 │   ├── bin
 │   │   └── index.ts
