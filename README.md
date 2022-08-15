@@ -1,10 +1,10 @@
-# Sample project for ECS Fargate with CDK
+# App Runner sample project with CDK
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk)
 
 ## Introduction
 
-In this sample project, we will learn major features of ECS Fargate and Fargate Spot.
+In this sample project, we will learn major features of App Runner.
 
 ![Architecture](./screenshots/fargate-architecture.png?raw=true)
 
@@ -35,7 +35,6 @@ npm install -g cdk-ecr-deployment@2.5.5
 npm install
 cdk bootstrap
 ```
-
 
 Use the `cdk` command-line toolkit to interact with your project:
 
