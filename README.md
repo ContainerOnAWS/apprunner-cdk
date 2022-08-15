@@ -27,7 +27,7 @@ Learn the features below using the CDK code:
 3. Deploy IAM Role stack
 4. Docker build, deploy ECR and CodeCommit repository stack
 5. Deploy ECS Fargate Service stack
-6. Deploy ECS FargateSpot Service stack
+6. Deploy ECS FargateSpot Service stackcd
 7. Scale the ECS Tasks
 8. Execute a command using ECS Exec
 9. Deploy ECS Code Pipeline stack
@@ -357,19 +357,15 @@ SSM parameters:
 
 ### Docs
 
-* [Fargate Task Networking](https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/userguide/fargate-task-networking.html) for debugging
-
-* [ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html) for debugging
+* [AuthenticationConfiguration](https://docs.aws.amazon.com/apprunner/latest/api/API_AuthenticationConfiguration.html)
 
 ### CDK Lib
 
-* [ECS](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ecs-readme.html)
+* [App Runner v2](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_apprunner-readme.html)
+
+* [App Runner v1](https://www.npmjs.com/package/@aws-cdk/aws-apprunner)
 
 * [ECR Assets](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ecr_assets-readme.html)
-
-* [IAM](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_iam-readme.html)
-
-* [SSM](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ssm-readme.html)
 
 ### IAM Role & Policy
 

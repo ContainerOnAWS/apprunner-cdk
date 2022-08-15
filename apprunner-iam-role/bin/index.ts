@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { AppRunnerStack } from '../lib/apprunner-stack';
 import { DEFAULT_STAGE } from '../../config';
+import { EcsIamRoleStack } from '../lib/ecs-iam-role-stack';
 
 const app = new cdk.App();
 const env = {
@@ -10,9 +10,8 @@ const env = {
 };
 const stage = app.node.tryGetContext('stage') || DEFAULT_STAGE;
 
-new AppRunnerStack(app, `apprunner-${stage}`,  {
+new EcsIamRoleStack(app, `apprunner-iam-role-${stage}`,  {
     env,
-    stage,
-    description: 'AppRunner with SpringBoot application',
+    description: 'AppRunner IAM Role',
     terminationProtection: stage!==DEFAULT_STAGE
 });

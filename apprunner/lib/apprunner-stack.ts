@@ -1,108 +1,78 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, CfnOutput, Lazy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 import * as apprunner from 'aws-cdk-lib/aws-apprunner';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 
-import { SSM_PREFIX } from '../../config';
+import { StackCommonProps, SSM_PREFIX } from '../../config';
 
+/**
+ * Deploy with ECR image that created using ecr-codecommit stack
+ */
 export class AppRunnerStack extends Stack {
-    constructor(scope: Construct, id: string, props?: StackProps) {
-        super(scope, id, props);
+  constructor(scope: Construct, id: string, props: StackCommonProps) {
+    super(scope, id, props);
 
-        // const service = apprunner.CfnService
-        
-        const cfnService = new apprunner.CfnService(this, 'cfn-service', {
-            sourceConfiguration: {
-            //   authenticationConfiguration: {
-            //     accessRoleArn: 'accessRoleArn',
-            //     connectionArn: 'connectionArn',
-            //   },
-              autoDeploymentsEnabled: false,
-              codeRepository: {
-                repositoryUrl: 'repositoryUrl',
-                sourceCodeVersion: {
-                  type: 'type',
-                  value: 'value',
-                },
-          
-                // the properties below are optional
-                codeConfiguration: {
-                  configurationSource: 'configurationSource',
-          
-                  // the properties below are optional
-                  codeConfigurationValues: {
-                    runtime: 'runtime',
-          
-                    // the properties below are optional
-                    buildCommand: 'buildCommand',
-                    port: 'port',
-                    runtimeEnvironmentVariables: [{
-                      name: 'name',
-                      value: 'value',
-                    }],
-                    startCommand: 'startCommand',
-                  },
-                },
-              },
-              imageRepository: {
-                imageIdentifier: 'imageIdentifier',
-                imageRepositoryType: 'imageRepositoryType',
-          
-                // the properties below are optional
-                imageConfiguration: {
-                  port: 'port',
-                  runtimeEnvironmentVariables: [{
-                    name: 'name',
-                    value: 'value',
-                  }],
-                  startCommand: 'startCommand',
-                },
-              },
-            },
-          
-            // // the properties below are optional
-            // autoScalingConfigurationArn: 'autoScalingConfigurationArn',
-            // encryptionConfiguration: {
-            //   kmsKey: 'kmsKey',
-            // },
-            // healthCheckConfiguration: {
-            //   healthyThreshold: 123,
-            //   interval: 123,
-            //   path: 'path',
-            //   protocol: 'protocol',
-            //   timeout: 123,
-            //   unhealthyThreshold: 123,
-            // },
-            // instanceConfiguration: {
-            //   cpu: 'cpu',
-            //   instanceRoleArn: 'instanceRoleArn',
-            //   memory: 'memory',
-            // },
-            // networkConfiguration: {
-            //   egressConfiguration: {
-            //     egressType: 'egressType',
-          
-            //     // the properties below are optional
-            //     vpcConnectorArn: 'vpcConnectorArn',
-            //   },
-            // },
-            // observabilityConfiguration: {
-            //   observabilityEnabled: false,
-          
-            //   // the properties below are optional
-            //   observabilityConfigurationArn: 'observabilityConfigurationArn',
-            // },
-            serviceName: 'serviceName',
-            tags: [{
-              key: 'key',
-              value: 'value',
+    // const service = apprunner.CfnService
+
+    const serviceName = `apprunnder-${props.stage}`;
+    const ecrUrl = `${props.env?.account}.dkr.ecr.${props.env?.region}.amazonaws.com/fargate-restapi-${props.stage}:latest`;
+
+    // const accessRole = new iam.Role(this, 'access-role', {
+    //   roleName: `AppRunnerEcrAccessRole${this.stackId}`,
+    //   // roleName: `AppRunnerEcrAccessRole-$serviceName`,
+    //   assumedBy: new iam.ServicePrincipal('build.apprunner.amazonaws.com'),
+    //   managedPolicies: [
+    //     iam.ManagedPolicy.fromAwsManagedPolicyName(
+    //       'service-role/AWSAppRunnerServicePolicyForECRAccess',
+    //     ),
+    //   ]
+    // });
+
+    const accessRoleArn = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/access-role-arn`);
+    const vpcId = ssm.StringParameter.valueFromLookup(this, `${SSM_PREFIX}/vpc-id`);
+
+    const cfnService = new apprunner.CfnService(this, 'cfn-service', {
+      serviceName,
+      tags: [{
+        key: 'stage',
+        value: props.stage,
+      }],
+      sourceConfiguration: {
+        authenticationConfiguration: {
+          accessRoleArn: Lazy.string({ produce: () => accessRoleArn }),
+        },
+        autoDeploymentsEnabled: false,
+        imageRepository: {
+          imageRepositoryType: 'ECR',
+          imageIdentifier: ecrUrl,
+          imageConfiguration: {
+            port: '8080',
+            runtimeEnvironmentVariables: [{
+              name: 'stage',
+              value: props.stage,
             }],
-          });
-        // const parameter = new ssm.StringParameter(this, 'SSMVPCID', { parameterName: `${SSM_PREFIX}/vpc-id`, stringValue: vpc.vpcId });
-        // new CfnOutput(this, 'VPC', { value: vpc.vpcId });
-        // new CfnOutput(this, 'SSMParameter', { value: parameter.parameterName });
-        // new CfnOutput(this, 'SSMParameterValue', { value: vpc.vpcId });
-        // new CfnOutput(this, 'SSMURL', { value: `https://${this.region}.console.aws.amazon.com/systems-manager/parameters/` });
-    }
+          },
+        },
+      },
+      healthCheckConfiguration: {
+        healthyThreshold: 2,
+        unhealthyThreshold: 5,
+        timeout: 19,
+        interval: 20,
+        path: '/',
+        protocol: 'HTTP'
+      },
+      networkConfiguration: {
+        egressConfiguration: {
+          egressType: 'VPC',
+          vpcConnectorArn: vpcId,
+        },
+      },
+    });
+
+    new CfnOutput(this, 'ServiceName', { value: cfnService.serviceName as string });
+    new CfnOutput(this, 'ServiceURL', { value: cfnService.attrServiceUrl as string });
+  }
 }

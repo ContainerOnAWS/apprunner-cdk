@@ -3,7 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 /**
  * 
  */
-export const SSM_PREFIX = '/cdk-apprunner';
+export const SSM_PREFIX = '/apprunner-cdk';
 
 
 export const DEFAULT_STAGE = 'dev';
