@@ -96,6 +96,7 @@ Cluster Name: [ecs-fargate-cluster/lib/cluster-config.ts](./ecs-fargate-cluster/
 
 ### Step 3: IAM Role
 
+
 Create the ECS Task Execution role and default Task Role.
 
 * AmazonECSFargateTaskExecutionRole
