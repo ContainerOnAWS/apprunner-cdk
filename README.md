@@ -68,12 +68,12 @@ cdk deploy
 
 [01-vpc/lib/vpc-stack.ts](./01-vpc/lib/vpc-stack.ts)
 
-The VPC ID will be saved into the SSM Parameter Store(`/cdk-ecs-fargate/vpc-id`) to refer from other stacks.
+The VPC ID will be saved into the SSM Parameter Store(`/apprunner-cdk/vpc-id`) to refer from other stacks.
 
 To use the existing VPC, use the `-c vpcId` context parameter or create SSM Parameter:
 
 ```bash
-aws ssm put-parameter --name "/cdk-ecs-fargate/vpc-id" --value "{existing-vpc-id}" --type String 
+aws ssm put-parameter --name "/apprunner-cdk/vpc-id" --value "{existing-vpc-id}" --type String 
 ```
 
 ### Step 3: IAM Role
@@ -108,8 +108,8 @@ cdk deploy
 
 ecs-restapi-service refers the SSM parameters below:
 
-* /cdk-ecs-fargate/vpc-id
-* /cdk-ecs-fargate/task-execution-role-arn
+* /apprunner-cdk/vpc-id
+* /apprunner-cdk/access-arn
 
 [04-apprunner/lib/apprunner-stack.ts](./04-apprunner/lib/apprunner-stack.ts)
 
@@ -118,56 +118,6 @@ ecs-restapi-service refers the SSM parameters below:
 If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json files deletion with the below:
 
 `find . -name "cdk.context.json" -exec rm -f {} \;`
-
-### Step 7: Scale the Tasks
-
-```bash
-aws ecs update-service --cluster fargate-dev --service fargate-restapi-dev --desired-count 10
-
-aws ecs update-service --cluster fargate-dev --service fargatespot-restapi-dev --desired-count 10
-```
-
-### Step 9: ECS deploy with Code Pipeline
-
-Commit ./app folder files to your new Code Commit repository:
-
-```bash
-PROJECT_ROOT=$(pwd)
-echo $PROJECT_ROOT
-
-CODECOMMIT_REPO_URL=$(cat ecr-codecommit/cdk-outputs.json | jq '."ecr-fargate-restapi-dev".CodeCommitRepoUrl'| cut -d '"' -f2)
-echo $CODECOMMIT_REPO_URL
-cd ../
-git clone ${CODECOMMIT_REPO_URL}
-CODECOMMIT_ROOT=$(pwd)/fargate-restapi-dev
-
-cp ${PROJECT_ROOT}/app/* ${CODECOMMIT_ROOT}/
-cd ${CODECOMMIT_ROOT}
-git add .
-git commit -m "code pipeline"
-git push 
-```
-
-Create a GitHub token on `Settings >  Developer settings` menu and create a secret:
-
-https://github.com/settings/tokens
-
-```bash
-aws secretsmanager create-secret --name '/github/token' --secret-string {your-token}
-
-cd ../code-pipeline
-cdk deploy 
-```
-
-SSM parameters:
-
-* /cdk-ecs-fargate/ecr-repo-arn
-* /cdk-ecs-fargate/ecr-repo-name
-* /cdk-ecs-fargate/cluster-securitygroup-id
-* /cdk-ecs-fargate/cluster-name
-* /cdk-ecs-fargate/codecommit-arn
-
-[code-pipeline/lib/ecs-codedeploy-stack.ts](./code-pipeline/lib/ecs-codedeploy-stack.ts)
 
 ## Clean Up
 
