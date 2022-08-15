@@ -70,6 +70,6 @@ export class AppRunnerStack extends Stack {
     });
 
     new CfnOutput(this, 'ServiceName', { value: cfnService.serviceName as string });
-    new CfnOutput(this, 'ServiceURL', { value: 'https://' + cfnService.attrServiceUrl as string });
+    new CfnOutput(this, 'ServiceURL', { value: `https://${cfnService.attrServiceUrl}` });
   }
 }
