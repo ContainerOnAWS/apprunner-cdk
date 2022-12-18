@@ -1,12 +1,11 @@
 # App Runner sample project with CDK
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk)
+[![Build](https://github.com/DevSecOpsSamples/apprunner-cdk/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/DevSecOpsSamples/apprunner-cdk/actions/workflows/build.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DevSecOpsSamples_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DevSecOpsSamples_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=DevSecOpsSamples_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=DevSecOpsSamples_apprunner-cdk)
 
 ## Introduction
 
 In this sample project, we will learn major features of App Runner.
-
-![Architecture](./screenshots/architecture.png?raw=true)
 
 ## Objectives
 
@@ -49,9 +48,9 @@ Use the `cdk` command-line toolkit to interact with your project:
 |---|----------------------------------|-------------------|
 | 1 | VPC                              | 3m 30s (optional)     |
 | 2 | IAM roles                        | 1m      |
-| 3 | ECR and CodeCommit repository    | 2m      |
-| 4 | App Runner                       | 3m      |
-|   | Total                            | 6m (9m 30s with a new VPC) |
+| 3 | ECR and CodeCommit repository including Docker build    | 4m      |
+| 4 | App Runner                       | 6m      |
+|   | Total                            | 11m (14m 30s with a new VPC) |
 
 ## Steps
 
@@ -123,59 +122,11 @@ If the ECS cluster was re-created, you HAVE to deploy after cdk.context.json fil
 
 [clean-up.sh](./clean-up.sh)
 
-## Structure
-
-```text
-├── build.gradle
-├── package.json
-├── ssm-prefix.ts
-├── tsconfig.json
-├── vpc
-│   ├── bin
-│   │   └── index.ts
-│   ├── cdk.json
-│   └── lib
-│       └── vpc-stack.ts
-├── ecs-fargate-cluster
-│   ├── bin
-│   │   └── index.ts
-│   ├── cdk.json
-│   ├── lib
-│   │   ├── cluster-config.ts
-│   │   └── ec2ecs-cluster-stack.ts
-│   └── settings.yaml
-├── 02-iam-role
-│   ├── bin
-│   │   └── index.ts
-│   ├── cdk.json
-│   └── lib
-│       └── 02-iam-role-stack.ts
-├── ecs-fargate-service-restapi
-│   ├── bin
-│   │   └── index.ts
-│   ├── cdk.json
-│   ├── lib
-│   │   └── apprunner-stack.ts
-├── ecs-fargatespot-service-restapi
-│   ├── bin
-│   │   └── index.ts
-│   ├── cdk.json
-│   ├── lib
-│   │   └── ecs-fargatespot-service-restapi-stack.ts
-├── app
-│   ├── Dockerfile
-│   ├── README.md
-│   ├── build.sh
-│   ├── flask_api.py
-│   ├── gunicorn.config.py
-│   └── requirements.txt
-```
-
 ## Reference
 
-* [GitHub - aws-containers](https://github.com/aws-containers)
+* https://aws.github.io/copilot-cli/blogs/apprunner-vpc/
 
-https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
+* https://aws.amazon.com/ko/blogs/containers/deep-dive-on-aws-app-runner-vpc-networking/
 
 ### Docs
 
