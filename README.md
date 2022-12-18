@@ -1,7 +1,7 @@
 # App Runner sample project with CDK
 
 [![Build](https://github.com/DevSecOpsSamples/apprunner-cdk/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/DevSecOpsSamples/apprunner-cdk/actions/workflows/build.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ContainerOnAWS_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ContainerOnAWS_apprunner-cdk)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DevSecOpsSamples_apprunner-cdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DevSecOpsSamples_apprunner-cdk) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=DevSecOpsSamples_apprunner-cdk&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=DevSecOpsSamples_apprunner-cdk)
 
 ## Introduction
 
